@@ -13,7 +13,7 @@
  * wrapper, error classes, and the internal registries.
  */
 
-import { resolve as nodeResolve, sep as nodeSep } from 'node:path';
+import { resolve as nodeResolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { createRequire } from 'node:module';
 import type { ScannerRegistry } from '@repodoctor/scanner/ScannerRegistry';
@@ -133,14 +133,20 @@ export class PluginManager {
     // File path — resolve to absolute.
     const resolvedPath = this.resolvePluginPath(pluginPath);
 
-    // Normalize to forward slashes for cross-platform import().
+    // Convert to a proper file:// URL for cross-platform import().
     //
-    // We do NOT use pathToFileURL() here because Vite (used by vitest)
-    // strips the file:// scheme on Windows, leaving an invalid /C:/...
-    // path. Forward-slash absolute paths (e.g. "C:/Users/.../plugin.js"
-    // on Windows, "/tmp/.../plugin.js" on Linux) work reliably in both
-    // Node's native import() and Vite's resolver on all platforms.
-    const importPath = resolvedPath.split(nodeSep).join('/');
+    // Node's import() requires either a bare specifier, a relative
+    // specifier, or a fully-qualified URL for absolute paths — a raw
+    // OS path (especially "C:\..." or forward-slash "C:/..." on
+    // Windows) is not a valid ES module specifier and can be
+    // misinterpreted by the resolver (observed failure: a Windows
+    // drive path with forward slashes collapsing to a "directory
+    // import" of the drive root). pathToFileURL() produces the
+    // correct "file:///C:/Users/.../plugin.js" form that Node's
+    // native import() (and Vitest's module runner, which itself loads
+    // test files via file:// URLs) resolves reliably on every
+    // platform.
+    const importUrl = pathToFileURL(resolvedPath).href;
 
     // Try dynamic import() first, wrapped in a 5s timeout. This handles
     // BOTH CJS (module.exports) and ESM (export default / export const)
@@ -148,7 +154,7 @@ export class PluginManager {
     // for CJS files.
     let plugin: unknown;
     try {
-      const module = (await this.withTimeout(import(importPath) as Promise<{ default?: unknown }>, name)) as { default?: unknown };
+      const module = (await this.withTimeout(import(importUrl) as Promise<{ default?: unknown }>, name)) as { default?: unknown };
       plugin = module.default;
     } catch (importError) {
       // If import() failed, try require() as a fallback. This handles

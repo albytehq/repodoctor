@@ -1,0 +1,75 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+# Required for softprops/action-gh-release to create releases and upload
+# assets. Without this, the default GITHUB_TOKEN only has `contents: read`
+# and the release step fails with HTTP 403.
+permissions:
+  contents: write
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+
+  publish-npm:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  build-binaries:
+    needs: test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - { platform: linux-x64 }
+          - { platform: darwin-arm64 }
+          - { platform: darwin-x64 }
+          - { platform: win-x64 }
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Package binary
+        run: |
+          npx esbuild dist/cli/index.js --bundle --platform=node --outfile=repodoctor-${{ matrix.platform }}.js
+      - name: Upload to GitHub Release
+        # v2 handles concurrent uploads from parallel matrix jobs correctly
+        # (retries if the release does not exist yet or is being created by
+        # another matrix leg). v1 fails with 403 under the same conditions.
+        uses: softprops/action-gh-release@72b9ab4c7a7a01013dab2232d6fabc1649e0d560 # v2.0.4
+        with:
+          files: repodoctor-${{ matrix.platform }}.js
+          fail_on_unmatched_files: true

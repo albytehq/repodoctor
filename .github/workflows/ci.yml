@@ -1,0 +1,31 @@
+name: CI
+
+# Continuous integration: runs on every push to main and every pull request.
+# Catches broken tests/typecheck/lint BEFORE they reach a release tag.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Minimal permissions — CI only needs to read the repo. It does NOT need
+# to write releases or deploy. This follows the principle of least privilege.
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false # don't cancel other OS legs when one fails
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test

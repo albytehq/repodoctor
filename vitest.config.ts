@@ -1,0 +1,67 @@
+import { defineConfig } from 'vitest/config';
+import { resolve } from 'node:path';
+
+export default defineConfig({
+  resolve: {
+    alias: {
+      '@repodoctor/core': resolve(__dirname, 'src/core'),
+      '@repodoctor/config': resolve(__dirname, 'src/config'),
+      '@repodoctor/cli': resolve(__dirname, 'src/cli'),
+      '@repodoctor/logger': resolve(__dirname, 'src/logger'),
+      '@repodoctor/errors': resolve(__dirname, 'src/errors'),
+      '@repodoctor/infrastructure': resolve(__dirname, 'src/infrastructure'),
+      '@repodoctor/utils': resolve(__dirname, 'src/utils'),
+      '@repodoctor/discovery': resolve(__dirname, 'src/discovery'),
+      '@repodoctor/scanner': resolve(__dirname, 'src/scanner'),
+      '@repodoctor/analyzer': resolve(__dirname, 'src/analyzer'),
+      '@repodoctor/health': resolve(__dirname, 'src/health'),
+      '@repodoctor/treatment': resolve(__dirname, 'src/treatment'),
+      '@repodoctor/reporter': resolve(__dirname, 'src/reporter'),
+      '@repodoctor/cache': resolve(__dirname, 'src/cache'),
+      '@repodoctor/plugins': resolve(__dirname, 'src/plugins'),
+    },
+  },
+  test: {
+    environment: 'node',
+    include: ['tests/**/*.test.ts'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html', 'json-summary'],
+      include: [
+        'src/core/**/*.ts',
+        'src/config/**/*.ts',
+        'src/errors/**/*.ts',
+        'src/utils/**/*.ts',
+        'src/discovery/**/*.ts',
+        'src/scanner/**/*.ts',
+        'src/analyzer/**/*.ts',
+        'src/health/**/*.ts',
+        'src/treatment/**/*.ts',
+        'src/reporter/**/*.ts',
+        'src/cache/**/*.ts',
+        'src/plugins/**/*.ts',
+      ],
+      exclude: [
+        'src/**/*.ts',
+        '!src/core/**',
+        '!src/config/**',
+        '!src/errors/**',
+        '!src/utils/**',
+        '!src/discovery/**',
+        '!src/scanner/**',
+        '!src/analyzer/**',
+        '!src/health/**',
+        '!src/treatment/**',
+        '!src/reporter/**',
+        '!src/cache/**',
+        '!src/plugins/**',
+      ],
+      thresholds: {
+        lines: 100,
+        functions: 100,
+        statements: 100,
+        branches: 100,
+      },
+    },
+  },
+});

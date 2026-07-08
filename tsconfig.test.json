@@ -1,0 +1,30 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "./",
+    "baseUrl": ".",
+    "paths": {
+      "@repodoctor/core/*": ["src/core/*"],
+      "@repodoctor/config/*": ["src/config/*"],
+      "@repodoctor/cli/*": ["src/cli/*"],
+      "@repodoctor/logger/*": ["src/logger/*"],
+      "@repodoctor/errors/*": ["src/errors/*"],
+      "@repodoctor/infrastructure/*": ["src/infrastructure/*"],
+      "@repodoctor/utils/*": ["src/utils/*"],
+      "@repodoctor/discovery/*": ["src/discovery/*"],
+      "@repodoctor/scanner/*": ["src/scanner/*"],
+      "@repodoctor/analyzer/*": ["src/analyzer/*"],
+      "@repodoctor/health/*": ["src/health/*"],
+      "@repodoctor/treatment/*": ["src/treatment/*"],
+      "@repodoctor/reporter/*": ["src/reporter/*"],
+      "@repodoctor/cache/*": ["src/cache/*"],
+      "@repodoctor/plugins/*": ["src/plugins/*"]
+    },
+    "noEmit": true,
+    "declaration": false,
+    "declarationMap": false,
+    "sourceMap": false
+  },
+  "include": ["src/**/*.ts", "tests/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}

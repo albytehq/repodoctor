@@ -1,0 +1,74 @@
+{
+  "name": "repodoctor",
+  "version": "0.1.0",
+  "description": "RepoDoctor — A universal health diagnosis system for software repositories.",
+  "keywords": [
+    "cli",
+    "repository",
+    "health",
+    "diagnosis",
+    "linter",
+    "audit",
+    "code-quality",
+    "security"
+  ],
+  "author": "albyte <albyte@users.noreply.github.com>",
+  "license": "MIT",
+  "homepage": "https://github.com/albytehq/repodoctor",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/albytehq/repodoctor.git"
+  },
+  "bugs": {
+    "url": "https://github.com/albytehq/repodoctor/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "bin": {
+    "repodoctor": "./dist/cli/index.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./cli": {
+      "default": "./dist/cli/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc && tsc-alias",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint \"src/**/*.ts\" \"tests/**/*.ts\"",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "dev": "tsx src/cli/index.ts",
+    "start": "node dist/cli/index.js",
+    "prepublishOnly": "npm run clean && npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.30",
+    "@typescript-eslint/eslint-plugin": "^7.4.0",
+    "@typescript-eslint/parser": "^7.4.0",
+    "@vitest/coverage-v8": "^4.1.10",
+    "eslint": "^8.57.0",
+    "tsc-alias": "^1.8.5",
+    "tsx": "^4.7.1",
+    "typescript": "5.4",
+    "vitest": "^4.1.10"
+  },
+  "dependencies": {
+    "cli-table3": "^0.6.5",
+    "picocolors": "^1.1.1"
+  }
+}
